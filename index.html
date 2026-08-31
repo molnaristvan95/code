@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <script type="text/javascript">
+  console.log(performance.now());
+  console.time();
+ </script>
+ <meta name="description" content="">
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="author" content="Ksenicz István Sztepanovics || Кшеніц Степан Степанович">
+ <meta name="keywords" content="">
+ <meta name="theme-color" content="#050">
+ <link rel="icon" type="image/png" href="fav.png">
+ <title>Code Editor - ZenicksNet</title>
+ <style rel="stylesheet" type="text/css">
+  /* ------------------ base and templates ---------------------*/
+  *:root {
+   font-size: 16px;
+   --opened: 'page was opened: ??';
+   --codeFont: 16px;
+  }
+
+  * {
+   box-sizing: border-box;
+   color: #ffab !important;
+  }
+
+  body#main {
+   margin: 0;
+   background: #000;
+   padding: 0;
+  }
+
+  body#main > * {
+   display: block;
+  }
+
+  button {
+   border-radius: 4px;
+  }
+
+  details {
+   padding: 2px;
+   border: orange 1px solid;
+  }
+  details>* {
+   float: left;
+   width: calc(50% - 4px);
+   margin: 2px;
+   text-align: center;
+   background: black;
+  }
+  details::after {
+   content: "";
+   display: table;
+   clear: both;
+  }
+  summary {
+   width: 100%;
+   display: block;
+   text-align: left;
+   background: #332;
+   padding: 8px 0;
+   text-indent:1rem;
+  }
+  .hundred {
+   width: 100%;
+   display: block;
+  }
+  .navig {
+   width: 31%;
+   display: inline-block;
+   padding: 8px 0;
+  }
+  input {
+   padding: 8px 0;
+  }
+  select {
+   padding: 8px 0;
+  }
+  #savebtn {
+   background: #050;
+   padding: 8px 0;
+  }
+  .three {
+   width: calc((100% / 3) - 10px);
+   padding: 8px 0;
+   margin-left: 5px;
+  }
+  form {
+   width: 100%;
+   height: auto;
+   max-height: 98vh;
+   border: red solid 1px;
+   margin: none;
+  }
+  form>textarea {
+   background: black;
+   height: 57vh;
+   min-height: 10vh;
+   max-height: 105vh;
+   ovetflow: scroll;
+   white-space: nowrap;
+   width: 95%;
+   border: orange solid 1px;
+   margin: 0 0 0 2%;
+   font-size: var(--codeFont);
+   padding: 2vw;
+  }
+  form>div {
+   min-height: calc(2vw + 2vh);
+   overflow: scroll hidden;
+   white-space: nowrap;
+   width:100% !important;
+  }
+  form>div>button {
+   background: #040;
+   height: 100%;
+   width: calc(8vw + 4vh);
+   font-weight: 900;
+   letter-spacing: 3px;
+  }
+  #codeContainer {
+   height: calc(4vw + 3vh);
+   overflow: hidden;
+   width:100% !important;
+  }
+  #codeContainer::after {
+   content: "";
+   display: table;
+   clear: both;
+  }
+  #codeContainer > * {
+   height: 100%;
+   float: left;
+  }
+  #codeContainer > *:not(#langSwitch) {
+   width: 100%;
+   white-space: nowarp;
+   overflow-X: scroll;
+   width: calc( 100% - (4vw + 3vh) );
+  }
+  #codeContainer > div > button {
+   height: 100%;
+   width: calc(3vw + 2vh);
+   color: black !important;
+   font-weight: 900;
+   backgroun: #ffa3;
+   letter-spacing: 1px;
+  }
+  #langSwitch {
+   background: #0f99;
+   width: calc(4vw + 3vh);
+   letter-spacing:1px;
+  }
+  #html > button {
+   background: #0b0;
+  }
+  #css > button {
+   background: skyblue;
+  }
+  #js > button{
+   background: gold;
+  }
+
+  section {
+   width: 100%;
+   height: calc(3vw + 3vh);
+   margin: none;
+   text-align: center;
+   display: flex;
+   align-items: center;
+   justify-content: space-around;
+  }
+  section>button {
+   background: #750;
+   height: 100%;
+  }
+  .codeHeight {
+   width: 100%;
+  }
+  #codeHeight {
+   filter: invert(1);
+   width: 100%;
+  }
+  #numerical>button {
+   width: calc(100% / 10.5);
+   background: green;
+  }
+  #keycenter>button {
+   width: calc(100% / 10.5);
+  }
+  #keycenter1>button {
+   width: calc(100% / 9.5);
+  }
+
+  #keycenter2>button {
+   width: calc(100% / 7.5);
+  }
+  #keycenter3>button {
+   width: calc(100% / 5.5);
+  }
+  .test {
+   background: #f909;
+   padding: 8px;
+  }
+  .fs {
+   padding: 8px 0;
+   background: purple;
+  }
+  .sumb{
+   display:inline-block;
+   padding: 4px !important;
+   font-family:"times new roman";
+   font-size:1rem;
+   font-weight:900;
+  }
+
+
+  footer {
+   background: #222;
+   margin: 0;
+   margin-top: 2px;
+   padding: 3px;
+   font-size:10px;
+  }
+
+  /* ------------------ targeted elements ---------------------*/
+
+  /* ------------------ media queries ---------------------*/
+
+  /* ------------------ black list quick test ---------------------*/
+  script {
+   display: none !important;
+  }
+ </style>
+ <base target="_blank">
+</head>
+<body id="main">
+ <details>
+  <summary>Setts & Save
+  <button type="button" id="savebtn" class="sumb">Save</button>
+  <button type="button" id="fullScreen" class="sumb fs">fullScreen</button>
+  <button type="button" id="test" class="sumb test">Open [TEST]</button>
+  </summary>
+  <label>fileName</label>
+  <label>extension</label>
+  <input type="text" id="fileName" placeholder="2026 js teszt">
+  <input type="text" id="extension" placeholder=".html" value="html">
+  <label class="hundred">quick options</label>
+  <select id="extensionIns" class="hundred">
+   <option value="html">.html</option>
+   <option value="css">.css</option>
+   <option value="js">.js</option>
+   <option value="php">.php</option>
+   <option value="txt">.txt</option>
+   <option value="json">.json</option>
+   <option value="bat">.bat</option>
+  </select>
+  <button type="button" id="minus" class="three">-</button>
+  <label class="three" id="returnSize">code font size</label>
+  <button type="button" id="plus" class="three">+</button>
+  
+  <label class="codeHeight">xx px</label>
+  <input type="range" min="16" max="100" value="50" id="codeHeight">
+  
+  <button type="button" id="copy" class="navig">Copy</button>
+  <button type="button" id="paste" class="navig">Paste</button>
+  <button type="button" id="clear" class="navig">Clear / restore</button>
+  
+ </details>
+ <form>
+
+  <textarea id="code" inputmode="none">
+   <!DOCTYPE html>
+   <html>
+   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <script type="text/javascript">
+     const create = (c) => {
+   return document.createElement(c);
+  },
+  append = (par, chil) => {
+   return par.appendChild(chil);
+  },
+  node = (variable, t) => {
+   let txt = document.createTextNode(t);
+   variable.appendChild(txt);
+   return;
+  },
+  event = (target, triger, func) => {
+   return target.setAttribute(triger, func);
+  },
+  substr = (a, b, c) => {
+   if (Number.isInteger(b) && Number.isInteger(c)) {
+    return a.substring(b, c);
+   } else {
+    return a.substring(1);
+   }
+  },
+  $ = (e) => {
+   let elem;
+   if (e[0] == '#') {
+    let x = substr(e);
+    elem = document.getElementById(x);
+   } else if (e[0] == '.') {
+    let x = substr(e);
+    elem = document.getElementsByClassName(x);
+   } else if (e[0] == 'n') {
+    let x = substr(e);
+    elem = document.getElementsByName(x);
+   } else if (e[0] == 't') {
+    let x = substr(e);
+    elem = document.getElementsByTagName(x);
+   }
+   return elem;
+  },
+  html = (el, h) => {
+   if (!h) {
+    return el.innerHTML;
+   } else {
+    return el.innerHTML = h;
+   }
+  },
+  css = (el, c) => {
+   let separ = c.split(';');
+   return el.style[separ[0]] = separ[1];
+  };
+    </script>
+    <style rel="stylesheet" type="text/css">
+
+    </style>
+   </head>
+   <body>
+
+    <script type="text/javascript">
+
+    </script>
+   </body>
+  </html>
+  </textarea>
+
+  <div id="codeContainer">
+   <button type="button" id="langSwitch">H</button>
+   <div id="html"></div>
+   <div id="css"></div>
+   <div id="js"></div>
+  </div>
+  <section id="numerical"></section>
+  <section id="keycenter"></section>
+  <section id="keycenter1"></section>
+  <section id="keycenter2"></section>
+  <section id="keycenter3"></section>
+ </form>
+ <footer align="center">
+  © 2026 ZenicksNet - codeEditorOffline
+ </footer>
+
+ <script type="text/javascript" defer>
+  console.group();
+  //console.time();
+  /* ---------------------------- base and templates -------------------------------- */
+  const abc = 'abcdefghijklmnopqrstuvwxyz ',
+  abcL = abc.toUpperCase(),
+  numbers = '1234567890',
+  keyboard = 'qwertyuiop'.split(''),
+  keyboard1 = 'asdfghjkl'.split(''),
+  keyboard2 = 'zxcvbnm'.split(''),
+  create = (c) => {
+   return document.createElement(c);
+  },
+  append = (par, chil) => {
+   return par.appendChild(chil);
+  },
+  node = (variable, t) => {
+   let txt = document.createTextNode(t);
+   variable.appendChild(txt);
+   return;
+  },
+  event = (target, triger, func) => {
+   return target.setAttribute(triger, func);
+  },
+  substr = (a, b, c) => {
+   if (Number.isInteger(b) && Number.isInteger(c)) {
+    return a.substring(b, c);
+   } else {
+    return a.substring(1);
+   }
+  },
+  $ = (e) => {
+   let elem;
+   if (e[0] == '#') {
+    let x = substr(e);
+    elem = document.getElementById(x);
+   } else if (e[0] == '.') {
+    let x = substr(e);
+    elem = document.getElementsByClassName(x);
+   } else if (e[0] == 'n') {
+    let x = substr(e);
+    elem = document.getElementsByName(x);
+   } else if (e[0] == 't') {
+    let x = substr(e);
+    elem = document.getElementsByTagName(x);
+   }
+   return elem;
+  },
+  html = (el, h) => {
+   if (!h) {
+    return el.innerHTML;
+   } else {
+    return el.innerHTML = h;
+   }
+  },
+  css = (el, c) => {
+   let separ = c.split(';');
+   return el.style[separ[0]] = separ[1];
+  };
+
+  function insertAtCursor(textarea, text) {
+   const start = textarea.selectionStart;
+   const end = textarea.selectionEnd;
+   const currentVal = textarea.value;
+
+   textarea.value = currentVal.substring(0, start) + text + currentVal.substring(end);
+
+   textarea.selectionStart = textarea.selectionEnd = start + text.length;
+   textarea.focus();
+  }
+
+  function loadBasic() {
+   const cleanDate = new Date().toLocaleString('hu-HU', {
+    hour12: false
+   });
+
+   $('#fileName').value = cleanDate;
+  }
+  loadBasic();
+
+  $('#minus').addEventListener('click', () => {
+   let value = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--codeFont').trim());
+   let newSize = value -= 2;
+
+   document.documentElement.style.setProperty('--codeFont', newSize+'px');
+   $('#returnSize').innerHTML = newSize + 'px';
+
+  });
+
+  $('#plus').addEventListener('click', () => {
+   let value = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--codeFont').trim());
+   let newSize = value += 3;
+
+   document.documentElement.style.setProperty('--codeFont', newSize+'px');
+   $('#returnSize').innerHTML = newSize + 'px';
+
+  });
+
+  $('#extensionIns').addEventListener('change', () => {
+   $('#extension').value = $('#extensionIns').value;
+  });
+
+let extract = 0;
+  function extractTitleToFileName(textareaSelector, targetSelector) {
+   if (extract === 0) {
+   let textarea = document.querySelector(textareaSelector);
+   if (!textarea) return "";
+
+   let match = textarea.value.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+   let titleText = match ? match[1].trim(): "";
+
+   let target = document.querySelector(targetSelector);
+   if (target) {
+    let currentVal = target.value !== undefined ? target.value: target.textContent;
+    let newVal = currentVal ? currentVal + "_" + titleText: titleText;
+
+    if (target.value !== undefined) {
+     target.value = newVal;
+    } else {
+     target.textContent = newVal;
+    }
+   }
+extract = 1;
+   return titleText;
+   }
+  }
+
+  document.querySelector('#savebtn').addEventListener('click', () => {
+   extractTitleToFileName('#code', '#fileName');
+  });
+
+
+  function downloadCode(filename, extension) {
+   const content = $('#code').value;
+   const blob = new Blob([content], {
+    type: 'text/plain;charset=utf-8'
+   });
+   const link = create('a');
+   link.href = URL.createObjectURL(blob);
+   link.download = filename + '.' + extension;
+   append(document.body, link);
+   link.click();
+   link.remove();
+   URL.revokeObjectURL(link.href);
+  }
+
+
+  //downloadCode('teszt20260715','js');
+  $('#savebtn').addEventListener('click', function () {
+   downloadCode($('#fileName').value, $('#extension').value);
+  });
+
+const percent = Math.floor(parseFloat(window.getComputedStyle($('#code')).getPropertyValue('height')) / parseFloat(window.innerHeight) * 100) + '%';
+
+$('.codeHeight')[0].innerHTML = percent;
+
+  $('#codeHeight').addEventListener('change', () => {
+   $('#code').style.height = $('#codeHeight').value + 'vh';
+   $('.codeHeight')[0].innerHTML = $('#codeHeight').value + '%';
+  });
+
+  var o = {
+   keys: {
+      html: {
+  '=""': '=""',
+  '</>': '<></>',
+  '<i/>': '< ="">',
+
+  '.': '.',
+  ',': ',',
+  ':': ':',
+  ';': ';',
+  '?': '?',
+  '!': '!',
+  '\'': '\'\'',
+  '"': '""',
+  '()': '()',
+
+  '+': '+',
+  '-': '-',
+  '_': '_',
+  '*': '*',
+  '/': '/',
+  '=': '=',
+
+  '<': '<',
+  '>': '>',
+  '&': '&'
+},
+
+css: {
+  '#': '#',
+  '.': '.',
+  ':': ':',
+  ';': ';',
+  '{}': '{}',
+  '+': '+',
+  '*': '*',
+  '%': '%',
+  '>': '>',
+  '/': '/',
+  '-': '-',
+  ',': ',',
+  '()': '()',
+  '[]': '[]',
+
+  '"': '""',
+  '!': '!',
+  '@': '@',
+  '_': '_',
+  '~': '~',
+  '!imp': '!important'
+},
+
+js : {
+'$(\'\')': '$(\'\')',
+'${}': '${}',
+'f()': 'function () { }',
+ '=>': '  () => { }',
+
+  '()': '()',
+ '{}': '{}',
+ '[]': '[]',
+
+  '.': '.',
+  '=': '=',
+  '\'': '\'\'',
+ 
+  ';': ';',
+  ',': ',',
+  ':': ':',
+  '\"': '\"\"',
+ 
+ 
+  '!': '!',
+  '/': '/',
+  '$': '$',
+  '?': '?',
+  '\`': '\` \`',
+  
+  '+': '+',
+  '-': '-',
+  '|': '|',
+  '&': '&',
+  '*': '*',
+  '%': '%',
+  '_': '_',
+  
+  
+},
+   },
+   genbtns: function (lang, target) {
+    for (var k in this['keys'][lang]) {
+     var b = create('BUTTON');
+     b.setAttribute('data-code', this['keys'][lang][k]);
+     b.type = 'button';
+     //append(target, b);
+     target.appendChild(b);
+     node(b, k);
+     function ins(el) {
+      $('#code').value += el.getAttribute('data-code');
+     }
+     b.onclick = function () {
+      // ins(this);
+      insertAtCursor($('#code'), this.getAttribute('data-code'));
+     }
+    }
+   },
+   genKeyboard: function (array, target) {
+    for (var butt of array) {
+     var a = create('BUTTON');
+     a.type = 'button';
+     append(target, a);
+     node(a, butt);
+     a.setAttribute('data-code', butt);
+     function ins2(el) {
+      $('#code').value += el.getAttribute('data-code');
+     }
+     a.addEventListener('click', function () {
+      //ins2(this);
+      insertAtCursor($('#code'), this.getAttribute('data-code'));
+     });
+    }
+   }
+  };
+
+  o['genbtns']('html', $('#html'));
+  o['genbtns']('css', $('#css'));
+  o['genbtns']('js', $('#js'));
+  o['genKeyboard'](numbers, $('#numerical'));
+  o['genKeyboard'](keyboard, $('#keycenter'));
+  o['genKeyboard'](keyboard1, $('#keycenter1'));
+  o['genKeyboard'](keyboard2, $('#keycenter2'));
+
+  lc = 0; //language counter
+  $('#langSwitch').addEventListener('click', () => {
+   if (lc === 0) {
+    lc = 1;
+    $('#html').style.display = 'none';
+    $('#css').style.display = 'block';
+    $('#js').style.display = 'none';
+    $('#langSwitch').innerHTML = 'CSS';
+   } else if (lc === 1) {
+    lc = 2;
+    $('#html').style.display = 'none';
+    $('#css').style.display = 'none';
+    $('#js').style.display = 'block';
+    $('#langSwitch').innerHTML = 'J${:}';
+   } else {
+    lc = 0;
+    $('#html').style.display = 'block';
+    $('#css').style.display = 'none';
+    $('#js').style.display = 'none';
+    $('#langSwitch').innerText = '</>';
+   }
+  });
+
+  function mainBtns() {
+   const line = $('#keycenter3');
+
+   let del = create('BUTTON'),
+   shft = create('BUTTON'),
+   spc = create('BUTTON'),
+   back = create('BUTTON'),
+   ent = create('BUTTON');
+
+   del.type = 'button';
+   shft.type = 'button';
+   spc.type = 'button';
+   back.type = 'button';
+   ent.type = 'button';
+
+   node(del,
+    'del');
+   node(shft,
+    'shft');
+   node(spc,
+    'SPACE')
+   node(back,
+    'bck');
+   node(ent,
+    'Ent');
+
+   append(line,
+    del);
+   append(line,
+    shft);
+   append(line,
+    spc);
+   append(line,
+    back);
+   append(line,
+    ent);
+
+   shft.counter = 0;
+
+   shft.addEventListener('click',
+    () => {
+     let els = ('keycenter,keycenter1,keycenter2').split(',');
+     if (shft.counter === 0) {
+      shft.counter = 1;
+      for (let arrs of els) {
+       for (let tags of $(`#${arrs}`).children) {
+        tags.innerHTML = tags.innerHTML.toUpperCase();
+        tags.setAttribute('data-code', tags.getAttribute('data-code').toUpperCase());
+       }
+      }
+     } else {
+      shft.counter = 0;
+      for (let arrs of els) {
+       for (let tags of $(`#${arrs}`).children) {
+        tags.innerHTML = tags.innerHTML.toLowerCase();
+        tags.setAttribute('data-code', tags.getAttribute('data-code').toLowerCase());
+       }
+      }
+     }
+    });
+   spc.addEventListener('click',
+    () => {
+     insertAtCursor($('#code'), ' ');
+    });
+
+   ent.addEventListener('click',
+    ()=> {
+     insertAtCursor($('#code'), '\n');
+    });
+
+   const ta = document.getElementById("code");
+
+   // BACKSPACE gomb
+   back.onclick = () => {
+    ta.focus();
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const text = ta.value;
+
+    if (start !== end) {
+     ta.value = text.substring(0, start) + text.substring(end);
+     ta.setSelectionRange(start, start);
+    } else if (start > 0) {
+     ta.value = text.substring(0, start - 1) + text.substring(start);
+     ta.setSelectionRange(start - 1, start - 1);
+    }
+   };
+
+   // DELETE gomb
+   del.onclick = () => {
+    ta.focus();
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const text = ta.value;
+
+    if (start !== end) {
+     ta.value = text.substring(0, start) + text.substring(end);
+     ta.setSelectionRange(start, start);
+    } else if (start < text.length) {
+     ta.value = text.substring(0, start) + text.substring(start + 1);
+     ta.setSelectionRange(start, start);
+    }
+   };
+  }
+  mainBtns();
+
+  /*
+$('#test').addEventListener('click', () =>{
+let win = window.open('', '_blank'),
+con = $('#code').value;
+    //win.document.documentElement.innerHTML = con;
+win.document.open();
+win.document.write(con);
+    win.document.close();
+});
+
+*/
+  $('#test').addEventListener('click', () => {
+
+   const con = $('#code').value;
+
+   const blob = new Blob([con], {
+    type: 'text/html'
+   });
+
+   const url = URL.createObjectURL(blob);
+
+   window.open(url, '_blank');
+
+  });
+
+
+  $('#copy').onclick = () => {
+   //let val = $('#code').value;
+   //navigator.clipboard.writeText(val);
+   $('#code').select();
+   document.execCommand("copy");
+  }
+
+  /*
+$('#paste').onclick = () => {
+  //let val = $('#code').value;
+  let val = navigator.clipboard.readText();
+  $('#code').value = val;
+}
+*/
+  /*$('#paste').onclick = function () {
+
+    navigator.permissions.query({ name: "clipboard-read" })
+        .then(function(p) {
+
+            if (p.state === "denied") {
+                alert("A böngésző tiltja a vágólap olvasását.");
+                return;
+            }
+
+            // prompt vagy granted → readText váltja ki a kérdést
+            navigator.clipboard.readText()
+                .then(function(text) {
+                    $('#code').value = text;
+                })
+                .catch(function(err) {
+                    console.log("Clipboard read failed:", err);
+                });
+
+        });
+};
+*/
+
+  async function paste() {
+   try {
+    // Permission ellenőrzés (biztonságos mód)
+    const perm = await navigator.permissions.query({
+     name: "clipboard-read"
+    });
+
+    if (perm.state === "denied") {
+     alert("A böngésző tiltja a vágólap olvasását.");
+     return;
+    }
+
+    // A readText maga váltja ki a permission promptot, ha szükséges
+    const text = await navigator.clipboard.readText();
+
+    // Beírás a te rendszered textarea-jába
+    $('#output').value = text;
+
+   } catch (err) {
+    console.log("Clipboard read failed:", err);
+    alert("Nem sikerült beolvasni a vágólapot. A böngésző valószínűleg blokkolja.");
+   }
+  }
+
+  // Eseménykötés a te saját $() függvényeddel
+  $('#paste').onclick = paste;
+
+
+  let val;
+  $('#clear').onclick = () => {
+   if ($('#code').value.length !== 0) {
+    val = $('#code').value;
+    $('#code').value = '';
+   } else {
+    $('#code').value = val;
+   }
+  }
+
+  $('#fullScreen').onclick = () => {
+   document.documentElement.requestFullscreen();
+  }
+
+window.onbeforeunload = () => {
+ return 'save?';
+}
+
+  console.log(performance.now());
+  console.timeEnd();
+
+ </script>
+</body>
+
+</html>
