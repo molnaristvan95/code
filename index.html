@@ -816,62 +816,17 @@ win.document.write(con);
    document.execCommand("copy");
   }
 
-  /*
-$('#paste').onclick = () => {
-  //let val = $('#code').value;
-  let val = navigator.clipboard.readText();
-  $('#code').value = val;
-}
-*/
-  /*$('#paste').onclick = function () {
-
-    navigator.permissions.query({ name: "clipboard-read" })
-        .then(function(p) {
-
-            if (p.state === "denied") {
-                alert("A böngésző tiltja a vágólap olvasását.");
-                return;
-            }
-
-            // prompt vagy granted → readText váltja ki a kérdést
-            navigator.clipboard.readText()
-                .then(function(text) {
-                    $('#code').value = text;
-                })
-                .catch(function(err) {
-                    console.log("Clipboard read failed:", err);
-                });
-
-        });
-};
-*/
 
   async function paste() {
-   try {
-    // Permission ellenőrzés (biztonságos mód)
-    const perm = await navigator.permissions.query({
-     name: "clipboard-read"
-    });
-
-    if (perm.state === "denied") {
-     alert("A böngésző tiltja a vágólap olvasását.");
-     return;
-    }
-
-    // A readText maga váltja ki a permission promptot, ha szükséges
+  try {
     const text = await navigator.clipboard.readText();
-
-    // Beírás a te rendszered textarea-jába
-    $('#output').value = text;
-
-   } catch (err) {
+    insertAtCursor($('#code'), text);
+  } catch (err) {
     console.log("Clipboard read failed:", err);
-    alert("Nem sikerült beolvasni a vágólapot. A böngésző valószínűleg blokkolja.");
-   }
   }
+}
 
-  // Eseménykötés a te saját $() függvényeddel
-  $('#paste').onclick = paste;
+$('#paste').onclick = paste;
 
 
   let val;
