@@ -40,6 +40,16 @@
   button {
    border-radius: 4px;
   }
+  
+  .detbtn > button{
+   font-size:.8rem;
+   height:100% !important;
+   padding:4px;
+  }
+  .local{
+   background:gray;
+   color:#ffa;
+  }
 
   details {
    padding: 2px;
@@ -218,6 +228,7 @@
    font-family: "times new roman";
    font-size: 1rem;
    font-weight: 900;
+   height:100%;
   }
 
 
@@ -242,10 +253,12 @@
 </head>
 <body id="main">
  <details>
-  <summary>Setts & Save
-   <button type="button" id="savebtn" class="sumb">Save</button>
-   <button type="button" id="fullScreen" class="sumb fs">fullScreen</button>
-   <button type="button" id="test" class="sumb test">Open [TEST]</button>
+  <summary class="detbtn">Setts & Save
+   <button type="button" id="savebtn" class="sumb">Dwnld</button>
+   <button type="button" id="fullScreen" class="sumb fs">fllScrn</button>
+   <button type="button" id="test" class="sumb test">Open</button>
+   <button type="button" id="local" class="local">Save</button>
+   <button type="button" id="localGet" class="local">Get</button>
   </summary>
   <label>fileName</label>
   <label>extension</label>
@@ -849,6 +862,20 @@ win.document.write(con);
   setTimeout(() => {
    $('#langSwitch').dispatchEvent(new MouseEvent('click'));
   }, 750);
+  
+  function saveLocal() {
+   let str = $('#code').value;
+   localStorage['localCode'] = str;
+  }
+  $('#local').onclick = () => saveLocal();
+  
+  function getLocal(){
+   if (!!localStorage['localCode']){
+    $('#code').value = localStorage['localCode'];
+   }
+  }
+  $('#localGet').onclick = () => getLocal();
+  
 
   window.onbeforeunload = () => {
    return 'save?';
