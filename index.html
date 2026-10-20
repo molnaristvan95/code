@@ -872,6 +872,8 @@ win.document.write(con);
   function getLocal(){
    if (!!localStorage['localCode']){
     $('#code').value = localStorage['localCode'];
+   } else {
+    alert('There is no saved string in the localStorage.')
    }
   }
   $('#localGet').onclick = () => getLocal();
