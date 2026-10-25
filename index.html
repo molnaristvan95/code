@@ -374,9 +374,9 @@
  <footer align="center">
   © 2026 ZenicksNet - codeEditorOffline
  </footer>
-<button id="testbtn" type="button">Test</button>
+<button id="testbtniframe" type="button">Test</button>
 <iframe
-    id="test"
+    id="testiframe"
     sandbox="allow-scripts allow-forms">
 </iframe>
 
@@ -888,8 +888,8 @@ if (con !== true) return;
   }
   $('#localGet').onclick = () => getLocal();
   
-$('#testbtn').onclick = () => {
-$('#test').srcdoc = $('#code').value;
+$('#testbtniframe').onclick = () => {
+$('#testiframe').srcdoc = $('#code').value;
 }
 
   window.onbeforeunload = () => {
