@@ -864,12 +864,16 @@ win.document.write(con);
   }, 750);
   
   function saveLocal() {
+let con = confirm('Save?');
+if (con !== true) return;
    let str = $('#code').value;
    localStorage['localCode'] = str;
   }
   $('#local').onclick = () => saveLocal();
   
   function getLocal(){
+let con = confirm('Load?');
+if (con !== true) return;
    if (!!localStorage['localCode']){
     $('#code').value = localStorage['localCode'];
    } else {
