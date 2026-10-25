@@ -374,6 +374,12 @@
  <footer align="center">
   © 2026 ZenicksNet - codeEditorOffline
  </footer>
+<button id="testbtn" type="button">Test</button>
+<iframe
+    id="test"
+    sandbox="allow-scripts allow-forms">
+</iframe>
+
 
  <script type="text/javascript" defer>
   console.group();
@@ -882,6 +888,9 @@ if (con !== true) return;
   }
   $('#localGet').onclick = () => getLocal();
   
+$('#testbtn').onclick = () => {
+$('#test').srcdoc = $('#code').value;
+}
 
   window.onbeforeunload = () => {
    return 'save?';
